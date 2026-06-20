@@ -1,0 +1,123 @@
+# 15. Reflection Questions
+
+## 15.1 Problem Formulation
+
+1. A state is the drone’s current position on the grid, written as a tuple such as `(row, col)`.
+2. An action is a movement the drone can take: UP, DOWN, LEFT, or RIGHT.
+3. The `result` function takes the current state and an action, then returns the new state after moving.
+4. Separating the problem from the algorithm is useful because the same search algorithms can be reused for different problems.
+
+## 15.2 BFS
+
+1. BFS uses a FIFO queue because it explores states in the order they were discovered.
+2. BFS finds the shortest path on an unweighted grid because it explores all nodes at depth 1 before depth 2, then depth 3, and so on.
+3. The `reached` set prevents the algorithm from visiting the same state repeatedly.
+
+## 15.3 DFS
+
+1. Because DFS investigates the most recent node first, it employs a stack.
+2. Because DFS may proceed far down one road before examining shorter options, it cannot ensure that it will identify the shortest path.
+3.Because DFS often keeps fewer frontier nodes than BFS, it might utilize less memory when the search tree is very large..
+4. When DFS takes a long detour or becomes mired in deep exploration that does not lead to the objective, it might perform poorly.
+
+## 15.4 DLS
+
+1. If the depth limit is too small, DLS may not reach the goal even if a solution exists.
+2. `"cutoff"` means the search stopped because it reached the depth limit.
+3. DLS is different from ordinary DFS because it has a maximum depth limit.
+4. Path-cycle checking prevents the algorithm from going in circles on the same path.
+
+## 15.5 IDS
+
+1. IDS repeats DLS with increasing limits so it can search shallow paths first, then gradually go deeper.
+2. IDS can be complete because it eventually reaches a depth limit large enough to include the solution.
+3. IDS uses less memory than BFS because each DLS run behaves like DFS and does not store the whole frontier level by level.
+4. The cost is that IDS repeats work by searching from the root multiple times.
+
+## 15.6 Real-World Drone Context
+
+1. In a real drone application, safer routes may avoid obstacles, restricted areas, bad weather, low battery risk, or dangerous terrain.
+2. I would choose BFS if all moves cost the same and I only care about the fewest number of moves, because BFS finds the shortest path in an unweighted grid.
+3. I would choose DLS if I want to limit how deep the drone is allowed to search, because DLS stops at a chosen depth.
+4. This grid model is limited because real drones move in continuous 3D space, deal with wind, battery limits, sensors, changing obstacles, and safety rules.
+ 
+PART B
+## 16.1 Heuristic Functions
+
+### 1. What does a heuristic estimate?
+From the present condition to the objective, a heuristic calculates the remaining cost. It steers the search in the direction of promising avenues without considering every avenue.
+
+### 2. What restrictions does the Manhattan "relaxed problem" remove?
+The Manhattan heuristic makes the assumption that there are no barriers or terrain costs in the way of the drone's straight approach to the objective. It solely takes vertical and horizontal distance into account.
+
+### 3. Which heuristic dominates: Manhattan or Euclidean?
+On a four-directional grid, Manhattan distance outperforms Euclidean distance as it typically yields higher estimates that are nonetheless acceptable and more informative.
+
+### 4. Why must terrain costs be greater than or equal to 1?
+In order to maintain admissibility and consistency and prevent heuristics like Manhattan distance from overestimating the true path cost, terrain costs must be at least 1.
+
+## 16.2 Greedy Best-First Search
+
+### 1. What quantity does Greedy Best-First Search ignore?
+Greedy Best-First Search only takes into account the heuristic estimate, h(n), ignoring the path cost already traveled, g(n).
+
+### 2. Why isn't expanding fewer nodes always better?
+Finding a more costly route might result from expanding fewer nodes. An ideal result is not always ensured by search efficiency.
+
+### 3. When would Greedy search be acceptable for a drone?
+In emergency response assignments, for example, when speed is more crucial than optimality, greedy search might be appropriate.
+
+## 16.3 A* Search
+
+### 1. Explain f(n) = g(n) + h(n) in drone terms.
+The drone chooses the most promising path by combining the projected remaining cost to the destination, h(n), with the cost already incurred during transit, g(n).
+
+### 2. Why test the goal when popping rather than generating?
+When popping, testing makes sure that the lowest-cost objective is the first one removed from the frontier, maintaining optimality.
+
+### 3. Why is reached a dictionary instead of a set?
+In order to replace bad pathways with better ones, a dictionary keeps track of both the state and the best node discovered for that state.
+
+### 4. What does the UCS versus A* comparison tell you?
+Because A* employs heuristic guiding, the comparison demonstrates that it can identify optimum solutions with fewer nodes than UCS.
+
+## 16.4 Admissibility and Consistency
+
+### 1. Define admissible and consistent.
+The real remaining cost is never overestimated by an acceptable heuristic. The triangle inequality between adjacent states is satisfied by a consistent heuristic.
+
+### 2. What did the inadmissible heuristic experiment show?
+The experiment demonstrated that even if the search may be quicker, overestimating heuristics might lead A* to select less-than-ideal answers.
+
+### 3. Is Manhattan distance consistent?
+Indeed. The Manhattan distance is constant in a four-directional grid, changing by no more than one move cost between neighboring states.
+
+## 16.5 Weighted A* and Trade-offs
+
+### 1. How does the weight connect UCS, A*, and Greedy?
+Weighted A* acts like UCS when the weight is 0. It acts like A* when the weight is 1. The weight approaches greedy search when it grows extremely huge.
+
+### 2. What suboptimality guarantee does Weighted A* provide?
+Although weighted A* sacrifices optimality for speed, the solution cost is still constrained by the selected weight when employing an acceptable heuristic.
+
+### 3. Which algorithm would you choose for a battery-constrained drone?
+Because it strikes a mix between efficiency and optimality, identifying high-quality routes while also assisting with battery conservation, I would go with option A*.
+
+## 16.6 Memory and Real-World Drone Context
+
+### 1. Why is A* memory-hungry? How does IDA* differ?
+A* uses its frontier and reached structures to store a large number of nodes in memory. IDA* uses significantly less RAM since it conducts repeated depth-first searches.
+
+### 2. What real-world factors could be included in terrain costs?
+Wind, energy use, inclement weather, limited airspace, safety hazards, and altitude variations are examples of terrain costs.
+
+### 3. What changes if the target moves?
+Since the objective state varies over time, the search algorithm must constantly replan whenever the target moves.
+
+### 4. Which algorithm would you deploy, and when would you reconsider?
+Since A* offers a decent compromise between speed and optimality, I would utilize it in most circumstances. If making decisions quickly were more crucial than determining the optimal course, I would think twice before utilizing Greedy or Weighted A*.
+
+## AI Declaration
+Throughout this work, I utilized ChatGPT as a learning and assistance tool. I utilized it to help me create the reflection questions, clarify error messages that appeared during implementation, and comprehend the ideas underlying search algorithms. I assumed responsibility for the completed work that was sent in after reviewing and editing the AI's outputs. I was still in charge of the code, testing, and submission choices.
+       
+
